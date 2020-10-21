@@ -21,69 +21,67 @@ import java.util.ListIterator;
 
 public class myView extends View {
 
-    public myView(Context context){
-        super(context);
-        paint = new Paint();
-        paint.setColor(Color.parseColor("#21BBA6"));
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeWidth(10);
-    }
+    private int startX = 0;
+    private int startY = 0;
 
-    private ArrayList<PointF> listOfPoints = new ArrayList<PointF>();
-    private int x1;
-    private int y1;
-    private int x2;
-    private int y2;
-    Paint paint;
-    private int inte = 0;
+    private int endX = 0;
+    private int endY = 0;
 
+    private int radius = 60;
+    private int mPivotX = 0;
+    private int mPivotY = 0;
+    public static Canvas mCanvas;
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        //	starting point
-        x1 = 50;
-        y1 = 50;
-
-        //	ending point
-        x2 = getWidth() / 2 + getWidth() / 4;
-        y2 = getHeight() / 2 + getHeight() / 4;
-
-        Log.d("line xy xy", x1 + " : "+y1+" : "+x2 + " : "+y2);
-
-
-        divideLineIntoEqualParts();
-    }
-
-    //	dividing line into 50 equal parts
-    private void divideLineIntoEqualParts() {
-
-        /*
-         * Courtesy : www.dummies.com
-         * (x,y) = (x1 + k(x2 - x1),y1 + k(y2 - y1))
-         * */
-
-        listOfPoints.clear();
-        for (int k = 1; k <= 50; k++) {
-            listOfPoints.add(new PointF(x1 + ((k * (x2 - x1)) / 50),y1 + (k * (y2 - y1)) / 50));
+    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG) {
+        {
+            setDither(true);
+            setColor(Color.RED);
+            setStrokeWidth(10);
+            setStrokeCap(Cap.ROUND);
         }
+    };
 
-        Log.d("listOfPoints : size : ",listOfPoints.size()+"");
+    public myView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        drawO();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
+        mCanvas = canvas;
         super.onDraw(canvas);
 
-        if(inte < listOfPoints.size()){
-            canvas.drawLine(listOfPoints.get(0).x, listOfPoints.get(0).y, listOfPoints.get(inte).x,listOfPoints.get(inte).y, paint);
-            inte++;
+        canvas.drawCircle(mPivotX, mPivotY, radius, paint);
 
-            if(inte < listOfPoints.size()){
-                invalidate();
-            }
+        canvas.drawLine(startX, startY, endX, endY, paint);
+        canvas.drawLine(100,startY,100 - endX,endY,paint);
+
+        if (endX != 100 && endY != 100) { // set end points
+            endY+=10;
+            endX+=10;
+
         }
+        invalidate();
 
     }
+
+    private void drawX() {
+
+    }
+
+    public void drawO() {
+        int minX = radius * 2;
+        int maxX = getWidth() - (radius * 2);
+
+        int minY = radius * 2;
+        int maxY = getHeight() - (radius * 2);
+
+        mPivotX = 50;
+        mPivotY = 50;
+
+        //important. Refreshes the view by calling onDraw function
+        invalidate();
+    }
+
+
 }

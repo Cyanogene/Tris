@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Tris_Meneghetti</string>
+    <string name="btn_nuovaPartita">NUOVA PARTITA</string>
 </resources>

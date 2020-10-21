@@ -2,46 +2,71 @@ package com.example.tris_meneghetti;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private int[][] griglia = new int[3][3];
-    private int player1;
-    private int player2;
-    private Button[] buttons = new Button[9];
+    //  https://stackoverflow.com/questions/23717558/android-draw-circle-in-custom-canvas-on-button-click
+    // su drawCircle() passo degli input (tipo un bool che mi dice se disegnare o no)
+
+    private String[][] griglia = new String[3][3];
+    private Button[][] grigliaPulsanti = new Button[3][3];
+    boolean turnoX = true;
+    boolean vittoria = false;
+    private TextView lbl_vittoria;
+    private Button btn_nuovaPartita;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new myView(this));
-        //  https://stackoverflow.com/questions/23717558/android-draw-circle-in-custom-canvas-on-button-click
-        // su drawCircle() passo degli input (tipo un bool che mi dice se disegnare o no)
+        setContentView(R.layout.activity_main);
 
-        /*
-        for (int i = 0; i < buttons.length; i++) {
-            String buttonID = "button" + i;
-            int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
-            buttons[i] = findViewById(resID);
-            buttons[i].setOnClickListener(this);
-        }
-         */
+        creaMatricePulsanti();
+        
+        btn_nuovaPartita = findViewById(R.id.btn_nuovaPartita);
+        lbl_vittoria = findViewById(R.id.lbl_vittoria);
+        btn_nuovaPartita.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                nuovaPartita();
+            }
+        });
     }
 
-
-    private void controllo(int i)    // da void a int se si fa if (controllo(i) == 1) //player 1 has won!!
+    private void nuovaPartita()
     {
-        rowCheck(i);
-        columnCheck(i);
+        vittoria = false;
+        lbl_vittoria.setText("");
+        griglia = new String[3][3];
+        turnoX = true;
+    }
+
+    private void creaMatricePulsanti()
+    {
+        int a = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int k = 0; k < 3; k++) {
+                String buttonID = "button" + a;
+                a++;
+                int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
+                grigliaPulsanti[i][k] = findViewById(resID);
+                grigliaPulsanti[i][k].setOnClickListener(this);
+            }
+        }
+    }
+    private void controllo()    // da void a int se si fa if (controllo(i) == 1) //player 1 has won!!
+    {
+        for (int i = 0; i < 3; i++){
+            rowCheck(i);
+            columnCheck(i);
+        }
+
         diagonalCheck1();
         diagonalCheck2();
     }
@@ -50,8 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void rowCheck(int i) {
         int n = 0;
         for (int k = 0; k < 3; k++) {
-            if (griglia[i][k] == 1) n++;
-            if (griglia[i][k] == -1) n--;
+            if (griglia[i][k] == "X") n++;
+            if (griglia[i][k] == "O") n--;
         }
         controlloVittoria(n);
     }
@@ -59,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void columnCheck(int i) {
         int n = 0;
         for (int k = 0; k < 3; k++) {
-            if (griglia[k][i] == 1) n++;
-            if (griglia[k][i] == -1) n--;
+            if (griglia[k][i] == "X") n++;
+            if (griglia[k][i] == "O") n--;
         }
         controlloVittoria(n);
     }
@@ -68,8 +93,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void diagonalCheck1() {
         int n = 0;
         for (int k = 0; k < 3; k++) {
-            if (griglia[k][k] == 1) n++;
-            if (griglia[k][k] == -1) n--;
+            if (griglia[k][k] == "X") n++;
+            if (griglia[k][k] == "O") n--;
         }
         controlloVittoria(n);
     }
@@ -78,8 +103,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int n = 0;
         int i = 2;
         for (int k = 0; k < 3; k++) {
-            if (griglia[k][i] == 1) n++;
-            if (griglia[k][i] == -1) n--;
+            if (griglia[i][k] == "X") n++;
+            if (griglia[i][k] == "O") n--;
             i--;
         }
         controlloVittoria(n);
@@ -93,26 +118,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void victory(int giocatore) {
-
-
+        lbl_vittoria.setText("VITTORIA"+giocatore);
+        vittoria = true;
     }
-
-    private int startX = 0;
-    private int startY = 0;
-
-    private int endX = 0;
-    private int endY = 0;
-
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG) {
-        {
-            setDither(true);
-            setColor(Color.RED);
-        }
-    };
-
 
     @Override
     public void onClick(View v) {
-        ((Button) v).setText("ciao");
+        if (vittoria)
+            return;
+
+        for (int i = 0; i < 3; i++)
+        {
+            for (int k = 0; k < 3; k++)
+            {
+                if (grigliaPulsanti[i][k] == ((Button) v)){
+                    if (turnoX){
+                        griglia[i][k] = "X";
+                        turnoX = false;
+                    }
+                    else{
+                        griglia[i][k] = "O";
+                        turnoX = true;
+                    }
+                }
+            }
+        }
+        controllo();
     }
 }
