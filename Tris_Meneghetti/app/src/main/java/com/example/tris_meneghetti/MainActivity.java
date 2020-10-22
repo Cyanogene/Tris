@@ -2,8 +2,6 @@ package com.example.tris_meneghetti;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +18,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     boolean vittoria = false;
     private TextView lbl_vittoria;
     private Button btn_nuovaPartita;
+    private myView btn0_view;
+    private myView btn1_view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +27,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         creaMatricePulsanti();
-        
+
         btn_nuovaPartita = findViewById(R.id.btn_nuovaPartita);
         lbl_vittoria = findViewById(R.id.lbl_vittoria);
+        btn0_view = (myView) findViewById(R.id.btn0_view);
+        btn1_view = (myView) findViewById(R.id.btn1_view);
+        btn0_view.setOnClickListener(view->onButtonClick(view));
+        btn1_view.setOnClickListener(view->onButtonClick(view));
         btn_nuovaPartita.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -39,16 +43,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void nuovaPartita()
-    {
+    private void nuovaPartita() {
         vittoria = false;
         lbl_vittoria.setText("");
         griglia = new String[3][3];
         turnoX = true;
     }
 
-    private void creaMatricePulsanti()
-    {
+    private void creaMatricePulsanti() {
         int a = 0;
         for (int i = 0; i < 3; i++) {
             for (int k = 0; k < 3; k++) {
@@ -60,15 +62,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+
     private void controllo()    // da void a int se si fa if (controllo(i) == 1) //player 1 has won!!
     {
-        for (int i = 0; i < 3; i++){
+        for (int i = 0; i < 3; i++) {
             rowCheck(i);
             columnCheck(i);
         }
 
         diagonalCheck1();
         diagonalCheck2();
+    }
+
+    private void onButtonClick(View view){
+        if(turnoX){
+            ((myView)view).drawX();
+            turnoX=false;
+        } else {
+            ((myView)view).drawO();
+            turnoX = true;
+        }
+        if (vittoria)
+            return;
+
+//        for (int i = 0; i < 3; i++) {
+//            for (int k = 0; k < 3; k++) {
+//                if (grigliaPulsanti[i][k] == ((Button) view)) {
+//                    if (turnoX) {
+//                        griglia[i][k] = "X";
+//                        turnoX = false;
+//                    } else {
+//                        griglia[i][k] = "O";
+//                        turnoX = true;
+//                    }
+//                }
+//            }
+//        }
+
+        controllo();
     }
 
 
@@ -118,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void victory(int giocatore) {
-        lbl_vittoria.setText("VITTORIA"+giocatore);
+        lbl_vittoria.setText("VITTORIA" + giocatore);
         vittoria = true;
     }
 
@@ -127,16 +158,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (vittoria)
             return;
 
-        for (int i = 0; i < 3; i++)
-        {
-            for (int k = 0; k < 3; k++)
-            {
-                if (grigliaPulsanti[i][k] == ((Button) v)){
-                    if (turnoX){
+        for (int i = 0; i < 3; i++) {
+            for (int k = 0; k < 3; k++) {
+                if (grigliaPulsanti[i][k] == ((Button) v)) {
+                    if (turnoX) {
                         griglia[i][k] = "X";
                         turnoX = false;
-                    }
-                    else{
+                    } else {
                         griglia[i][k] = "O";
                         turnoX = true;
                     }

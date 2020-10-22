@@ -4,84 +4,127 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PointF;
-import android.renderscript.ScriptIntrinsicYuvToRGB;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+public class myView extends View implements View.OnClickListener{
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-
-public class myView extends View {
-
-    private int startX = 0;
-    private int startY = 0;
+    private int startX = 30;
+    private int startY = 30;
 
     private int endX = 0;
     private int endY = 0;
+    private int angle =0;
 
     private int radius = 60;
     private int mPivotX = 0;
     private int mPivotY = 0;
-    public static Canvas mCanvas;
+    public boolean drawXAnimation = false;
 
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG) {
+    private Paint paintX = new Paint(Paint.ANTI_ALIAS_FLAG) {
         {
             setDither(true);
             setColor(Color.RED);
-            setStrokeWidth(10);
+            setStrokeWidth(30);
+            setStyle(Paint.Style.STROKE);
+            setStrokeCap(Cap.ROUND);
+
+        }
+    };
+    private Paint paintO = new Paint(Paint.ANTI_ALIAS_FLAG) {
+        {
+            setDither(true);
+            setColor(Color.RED);
+            setStrokeWidth(40);
+            setStyle(Paint.Style.STROKE);
             setStrokeCap(Cap.ROUND);
         }
     };
+    private boolean drawYAnimation = false;
 
     public myView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        drawO();
+        setClickable(true);
+        //drawO();
+    }
+    public myView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        setClickable(true);
     }
 
+/*
+    @Override
+    public boolean onTouchEvent(final MotionEvent event) {
+        if(event.getAction() == MotionEvent.ACTION_UP){
+            return performClick();
+        }
+        return true;
+    }
+
+
+ */
     @Override
     protected void onDraw(Canvas canvas) {
-        mCanvas = canvas;
         super.onDraw(canvas);
 
-        canvas.drawCircle(mPivotX, mPivotY, radius, paint);
-
-        canvas.drawLine(startX, startY, endX, endY, paint);
-        canvas.drawLine(100,startY,100 - endX,endY,paint);
-
-        if (endX != 100 && endY != 100) { // set end points
-            endY+=10;
-            endX+=10;
-
+        if (drawXAnimation) {
+            canvas.drawLine(startX, startY, endX, endY, paintX);
+            canvas.drawLine(30, getWidth() -30, endX, getWidth() - endX, paintX);
+            if (endX < getWidth() - 30 && endY < getWidth() -30) {
+                endY += 20;
+                endX += 20;
+                postInvalidateDelayed(5);
+            }
+            else{
+                drawXAnimation = false;
+            }
         }
-        invalidate();
+        if (drawYAnimation) {
+            //canvas.drawLine(startX, startY, endX, endY, paint);
+           // canvas.drawLine(10, 150, endX, 160 - endX, paint);
+            //canvas.drawArc(0,0,getWidth(),getHeight(),0,angle,true,paint);
+            canvas.drawCircle(getWidth()/2,getHeight()/2,angle, paintO);
+            if (angle<getWidth()/2 - 40) {
+                angle += 10;
+                postInvalidateDelayed(5);
+            }
+            else{
+                drawYAnimation = false;
+            }
+        }
 
     }
+    //canvas.drawCircle(mPivotX, mPivotY, radius, paint);
 
-    private void drawX() {
 
+    public void drawX() {
+        drawXAnimation = true;
+        invalidate();
     }
 
     public void drawO() {
-        int minX = radius * 2;
-        int maxX = getWidth() - (radius * 2);
 
-        int minY = radius * 2;
-        int maxY = getHeight() - (radius * 2);
-
-        mPivotX = 50;
-        mPivotY = 50;
-
-        //important. Refreshes the view by calling onDraw function
+//        int minX = radius * 2;
+//        int maxX = getWidth() - (radius * 2);
+//
+//        int minY = radius * 2;
+//        int maxY = getHeight() - (radius * 2);
+//
+//        mPivotX = 50;
+//        mPivotY = 50;
+//
+//        //important. Refreshes the view by calling onDraw function
+//        //invalidate();
+        drawYAnimation = true;
         invalidate();
     }
 
+
+    @Override
+    public void onClick(View v) {
+        drawX();
+    }
 
 }

@@ -18,11 +18,13 @@
 
     <Button
         android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginBottom="96dp"
         app:layout_constraintBottom_toTopOf="@+id/button4"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -97,7 +99,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.example.tris_meneghetti.myView
-        android:id="@+id/view1"
+        android:id="@+id/btn0_view"
         android:layout_width="90dp"
         android:layout_height="90dp"
         app:layout_constraintBottom_toBottomOf="@+id/button0"
@@ -117,5 +119,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <com.example.tris_meneghetti.myView
+        android:id="@+id/btn1_view"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        app:layout_constraintBottom_toBottomOf="@+id/button1"
+        app:layout_constraintEnd_toEndOf="@+id/button1"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/button1"
+        app:layout_constraintTop_toTopOf="@+id/button1"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
