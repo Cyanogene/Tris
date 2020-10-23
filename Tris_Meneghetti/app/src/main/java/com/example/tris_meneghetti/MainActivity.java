@@ -2,25 +2,28 @@ package com.example.tris_meneghetti;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity{
 
     //  https://stackoverflow.com/questions/23717558/android-draw-circle-in-custom-canvas-on-button-click
     // su drawCircle() passo degli input (tipo un bool che mi dice se disegnare o no)
 
     private String[][] griglia = new String[3][3];
-    private View[][] grigliaPulsanti = new View[3][3];
+    private myView[][] grigliaPulsanti = new myView[3][3];
     boolean turnoX = true;
     boolean vittoria = false;
     private TextView lbl_vittoria;
+    private TextView lbl_punteggio;
     private Button btn_nuovaPartita;
     private myView btn0_view;
     private myView btn1_view;
+    private int pareggio = 0;
+    private int punteggioX = 0;
+    private int punteggioO = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,20 +34,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btn_nuovaPartita = findViewById(R.id.btn_nuovaPartita);
         lbl_vittoria = findViewById(R.id.lbl_vittoria);
+        lbl_punteggio = findViewById(R.id.lbl_punteggio);
+        lbl_vittoria.setText("Turno di X");
+        lbl_punteggio.setText(String.format("X: 0\n O: 0"));
         btn_nuovaPartita.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
                 nuovaPartita();
-
+                lbl_vittoria.setText("Turno di X");
             }
         });
     }
 
     private void nuovaPartita() {
         vittoria = false;
+        pareggio = 0;
         lbl_vittoria.setText("");
         griglia = new String[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int k = 0; k < 3; k++) {
+                grigliaPulsanti[i][k].setClickable(true);
+                grigliaPulsanti[i][k].nuovaPartita();
+            }
+        }
         turnoX = true;
     }
 
@@ -56,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 a++;
                 int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
                 grigliaPulsanti[i][k] = findViewById(resID);
+                grigliaPulsanti[i][k].setClickable(true);
                 grigliaPulsanti[i][k].setOnClickListener(view -> onButtonClick(view));
             }
         }
@@ -77,14 +91,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             for (int k = 0; k < 3; k++) {
                 if (grigliaPulsanti[i][k] == view) {
                     if (turnoX) {
+                        pareggio++;
                         griglia[i][k] = "X";
                         ((myView) view).drawX();
+                        grigliaPulsanti[i][k].setClickable(false);
                         turnoX = false;
-                    }
-                    else {
+                        lbl_vittoria.setText("Turno di O");
+                    } else {
+                        pareggio++;
                         griglia[i][k] = "O";
                         ((myView) view).drawO();
+                        grigliaPulsanti[i][k].setClickable(false);
                         turnoX = true;
+                        lbl_vittoria.setText("Turno di X");
                     }
 
                 }
@@ -92,10 +111,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
 
+        controllo();
         if (vittoria)
             return;
+        if (pareggio == 9) {
+            lbl_vittoria.setText("Pareggio!");
+        }
 
-        controllo();
     }
 
 
@@ -138,35 +160,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void controlloVittoria(int n) {
-        if (n == 3)
-            victory(1);
-        else if (n == -3)
-            victory(2);
+        if (!vittoria) {
+            if (n == 3) {
+                punteggioX++;
+                victory("X");
+            }
+
+            if (n == -3) {
+                punteggioO++;
+                victory("O");
+            }
+        }
     }
 
-    private void victory(int giocatore) {
-        lbl_vittoria.setText("VITTORIA" + giocatore);
+    private void victory(String giocatore) {
+        lbl_vittoria.setText(String.format("La %s ha vinto!", giocatore));
         vittoria = true;
-    }
-
-    @Override
-    public void onClick(View v) {
-//        if (vittoria)
-//            return;
-//
-//        for (int i = 0; i < 3; i++) {
-//            for (int k = 0; k < 3; k++) {
-//                if (grigliaPulsanti[i][k] == ((Button) v)) {
-//                    if (turnoX) {
-//                        griglia[i][k] = "X";
-//                        turnoX = false;
-//                    } else {
-//                        griglia[i][k] = "O";
-//                        turnoX = true;
-//                    }
-//                }
-//            }
-//        }
-//        controllo();
+        lbl_punteggio.setText(String.format("X: %d\n O: %d", punteggioX, punteggioO));
+        for (int i = 0; i < 3; i++) {
+            for (int k = 0; k < 3; k++) {
+                grigliaPulsanti[i][k].setClickable(false);
+            }
+        }
     }
 }
