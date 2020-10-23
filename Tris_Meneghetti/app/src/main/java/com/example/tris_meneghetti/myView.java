@@ -22,6 +22,7 @@ public class myView extends View implements View.OnClickListener{
     private int mPivotX = 0;
     private int mPivotY = 0;
     public boolean drawXAnimation = false;
+    public boolean clear = false;
 
     private Paint paintX = new Paint(Paint.ANTI_ALIAS_FLAG) {
         {
@@ -37,6 +38,16 @@ public class myView extends View implements View.OnClickListener{
         {
             setDither(true);
             setColor(Color.RED);
+            setStrokeWidth(40);
+            setStyle(Paint.Style.STROKE);
+            setStrokeCap(Cap.ROUND);
+        }
+    };
+
+    private Paint paintXWhite = new Paint(Paint.ANTI_ALIAS_FLAG) {
+        {
+            setDither(true);
+            setColor(Color.parseColor("#2A2A2A"));
             setStrokeWidth(40);
             setStyle(Paint.Style.STROKE);
             setStrokeCap(Cap.ROUND);
@@ -69,54 +80,59 @@ public class myView extends View implements View.OnClickListener{
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+//        if (clear) {
+//            canvas.drawLine(startX, startY, endX, endY, paintX);
+//            canvas.drawLine(30, getWidth() - 30, endX, getWidth() - endX, paintX);
+//            if (endX < getWidth() - 30 && endY < getWidth() - 30) {
+//                endY += 20;
+//                endX += 20;
+//                postInvalidateDelayed(5);
+//            } else {
+//                drawXAnimation = false;
+//            }
+//        }
+
         if (drawXAnimation) {
             canvas.drawLine(startX, startY, endX, endY, paintX);
-            canvas.drawLine(30, getWidth() -30, endX, getWidth() - endX, paintX);
-            if (endX < getWidth() - 30 && endY < getWidth() -30) {
+            canvas.drawLine(30, getWidth() - 30, endX, getWidth() - endX, paintX);
+            if (endX < getWidth() - 30 && endY < getWidth() - 30) {
                 endY += 20;
                 endX += 20;
                 postInvalidateDelayed(5);
-            }
-            else{
+            } else {
                 drawXAnimation = false;
             }
         }
         if (drawYAnimation) {
-            //canvas.drawLine(startX, startY, endX, endY, paint);
-           // canvas.drawLine(10, 150, endX, 160 - endX, paint);
-            //canvas.drawArc(0,0,getWidth(),getHeight(),0,angle,true,paint);
-            canvas.drawCircle(getWidth()/2,getHeight()/2,angle, paintO);
-            if (angle<getWidth()/2 - 40) {
+
+            canvas.drawCircle(getWidth() / 2, getHeight() / 2, angle, paintO);
+            if (angle < getWidth() / 2 - 40) {
                 angle += 10;
                 postInvalidateDelayed(5);
-            }
-            else{
+            } else {
                 drawYAnimation = false;
             }
         }
 
+
     }
     //canvas.drawCircle(mPivotX, mPivotY, radius, paint);
-
+    public void nuovaPartita(){
+//        clear = true;
+//        invalidate();
+    }
 
     public void drawX() {
+        endX = 0;
+        endY = 0;
         drawXAnimation = true;
         invalidate();
     }
 
     public void drawO() {
 
-//        int minX = radius * 2;
-//        int maxX = getWidth() - (radius * 2);
-//
-//        int minY = radius * 2;
-//        int maxY = getHeight() - (radius * 2);
-//
-//        mPivotX = 50;
-//        mPivotY = 50;
-//
-//        //important. Refreshes the view by calling onDraw function
-//        //invalidate();
+        endX = 0;
+        endY = 0;
         drawYAnimation = true;
         invalidate();
     }

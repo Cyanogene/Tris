@@ -2,6 +2,7 @@ package com.example.tris_meneghetti;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,7 +14,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // su drawCircle() passo degli input (tipo un bool che mi dice se disegnare o no)
 
     private String[][] griglia = new String[3][3];
-    private Button[][] grigliaPulsanti = new Button[3][3];
+    private View[][] grigliaPulsanti = new View[3][3];
     boolean turnoX = true;
     boolean vittoria = false;
     private TextView lbl_vittoria;
@@ -30,15 +31,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btn_nuovaPartita = findViewById(R.id.btn_nuovaPartita);
         lbl_vittoria = findViewById(R.id.lbl_vittoria);
-        btn0_view = (myView) findViewById(R.id.btn0_view);
-        btn1_view = (myView) findViewById(R.id.btn1_view);
-        btn0_view.setOnClickListener(view->onButtonClick(view));
-        btn1_view.setOnClickListener(view->onButtonClick(view));
         btn_nuovaPartita.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
                 nuovaPartita();
+
             }
         });
     }
@@ -58,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 a++;
                 int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
                 grigliaPulsanti[i][k] = findViewById(resID);
-                grigliaPulsanti[i][k].setOnClickListener(this);
+                grigliaPulsanti[i][k].setOnClickListener(view -> onButtonClick(view));
             }
         }
     }
@@ -74,30 +72,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         diagonalCheck2();
     }
 
-    private void onButtonClick(View view){
-        if(turnoX){
-            ((myView)view).drawX();
-            turnoX=false;
-        } else {
-            ((myView)view).drawO();
-            turnoX = true;
+    private void onButtonClick(View view) {
+        for (int i = 0; i < 3; i++) {
+            for (int k = 0; k < 3; k++) {
+                if (grigliaPulsanti[i][k] == view) {
+                    if (turnoX) {
+                        griglia[i][k] = "X";
+                        ((myView) view).drawX();
+                        turnoX = false;
+                    }
+                    else {
+                        griglia[i][k] = "O";
+                        ((myView) view).drawO();
+                        turnoX = true;
+                    }
+
+                }
+            }
+
         }
+
         if (vittoria)
             return;
-
-//        for (int i = 0; i < 3; i++) {
-//            for (int k = 0; k < 3; k++) {
-//                if (grigliaPulsanti[i][k] == ((Button) view)) {
-//                    if (turnoX) {
-//                        griglia[i][k] = "X";
-//                        turnoX = false;
-//                    } else {
-//                        griglia[i][k] = "O";
-//                        turnoX = true;
-//                    }
-//                }
-//            }
-//        }
 
         controllo();
     }
@@ -155,22 +151,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if (vittoria)
-            return;
-
-        for (int i = 0; i < 3; i++) {
-            for (int k = 0; k < 3; k++) {
-                if (grigliaPulsanti[i][k] == ((Button) v)) {
-                    if (turnoX) {
-                        griglia[i][k] = "X";
-                        turnoX = false;
-                    } else {
-                        griglia[i][k] = "O";
-                        turnoX = true;
-                    }
-                }
-            }
-        }
-        controllo();
+//        if (vittoria)
+//            return;
+//
+//        for (int i = 0; i < 3; i++) {
+//            for (int k = 0; k < 3; k++) {
+//                if (grigliaPulsanti[i][k] == ((Button) v)) {
+//                    if (turnoX) {
+//                        griglia[i][k] = "X";
+//                        turnoX = false;
+//                    } else {
+//                        griglia[i][k] = "O";
+//                        turnoX = true;
+//                    }
+//                }
+//            }
+//        }
+//        controllo();
     }
 }
