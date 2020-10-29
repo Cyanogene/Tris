@@ -9,20 +9,15 @@ import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class myView extends View implements View.OnClickListener {
+public class Design extends View {
 
-    private int startX = 30;
-    private int startY = 30;
+    private boolean drawXAnimation = false;
+    private boolean drawYAnimation = false;
+    private boolean clear = false;
 
     private int endX = 0;
     private int endY = 0;
     private int angle = 0;
-
-    private int radius = 60;
-    private int mPivotX = 0;
-    private int mPivotY = 0;
-    public boolean drawXAnimation = false;
-    public boolean clear = false;
 
     private Paint paintX = new Paint(Paint.ANTI_ALIAS_FLAG) {
         {
@@ -34,6 +29,7 @@ public class myView extends View implements View.OnClickListener {
 
         }
     };
+
     private Paint paintO = new Paint(Paint.ANTI_ALIAS_FLAG) {
         {
             setDither(true);
@@ -53,39 +49,25 @@ public class myView extends View implements View.OnClickListener {
             setStrokeCap(Cap.ROUND);
         }
     };
-    private boolean drawYAnimation = false;
 
-    public myView(Context context, AttributeSet attrs) {
+    public Design(Context context, AttributeSet attrs) {
         super(context, attrs);
         setClickable(true);
-        //drawO();
     }
 
-    public myView(Context context, AttributeSet attrs, int defStyle) {
+    public Design(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         setClickable(true);
     }
 
-    /*
-        @Override
-        public boolean onTouchEvent(final MotionEvent event) {
-            if(event.getAction() == MotionEvent.ACTION_UP){
-                return performClick();
-            }
-            return true;
-        }
-
-
-     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        // CANCELLA TUTTE LE "X" E "O"
         if (clear) {
             canvas.drawLine(getWidth() / 2, getWidth() / 2, endX + 30, endY + 30, paintXWhite);
-//            canvas.drawLine(getWidth() / 2, getWidth() / 2, getWidth() - 30 - endX, endY + 30, paintXWhite);
-//            canvas.drawLine(getWidth() / 2, getWidth() / 2, endX + 30, getWidth() - 30 - endX, paintXWhite);
-//            canvas.drawLine(getWidth() / 2, getWidth() / 2, getWidth() - 30 - endX, getWidth() - 30 - endX, paintXWhite);
+
             if (endX < getWidth() - 110 && endY < getWidth() - 110) {
                 endY += 5;
                 endX += 5;
@@ -96,14 +78,13 @@ public class myView extends View implements View.OnClickListener {
             }
         }
 
+        // DISEGNA UNA "X"
         if (drawXAnimation) {
-//            canvas.drawLine(startX, startY, endX, endY, paintX);
-//            canvas.drawLine(30, getWidth() - 30, endX, getWidth() - endX, paintX);
-
             canvas.drawLine(getWidth() / 2, getWidth() / 2, endX + 30, endY + 30, paintX);
             canvas.drawLine(getWidth() / 2, getWidth() / 2, getWidth() - 30 - endX, endY + 30, paintX);
             canvas.drawLine(getWidth() / 2, getWidth() / 2, endX + 30, getWidth() - 30 - endX, paintX);
             canvas.drawLine(getWidth() / 2, getWidth() / 2, getWidth() - 30 - endX, getWidth() - 30 - endX, paintX);
+
             if (endX < getWidth() - 110 && endY < getWidth() - 110) {
                 endY += 7;
                 endX += 7;
@@ -112,9 +93,11 @@ public class myView extends View implements View.OnClickListener {
                 drawXAnimation = false;
             }
         }
-        if (drawYAnimation) {
 
+        // DISEGNA UNA "O"
+        if (drawYAnimation) {
             canvas.drawCircle(getWidth() / 2, getHeight() / 2, angle, paintO);
+
             if (angle < getWidth() / 2 - 60) {
                 angle += 8;
                 postInvalidateDelayed(3);
@@ -124,7 +107,6 @@ public class myView extends View implements View.OnClickListener {
         }
     }
 
-    //canvas.drawCircle(mPivotX, mPivotY, radius, paint);
     public void nuovaPartita() {
         clear = true;
         invalidate();
@@ -142,11 +124,4 @@ public class myView extends View implements View.OnClickListener {
         drawYAnimation = true;
         invalidate();
     }
-
-
-    @Override
-    public void onClick(View v) {
-        drawX();
-    }
-
 }
