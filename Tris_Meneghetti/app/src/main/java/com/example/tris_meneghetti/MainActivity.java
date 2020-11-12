@@ -3,7 +3,6 @@ package com.example.tris_meneghetti;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -12,7 +11,6 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private boolean turnoX;
-    private boolean vittoria = false;
 
     private int pareggio = 0;
     private int punteggioX = 0;
@@ -20,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String[][] griglia = new String[3][3];
     private Design[][] grigliaPulsanti = new Design[3][3];
+    private IplayerVS players;
 
     private TextView lbl_vittoria;
     private TextView lbl_punteggio;
@@ -30,34 +29,38 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        creaMatricePulsanti();
-
-        btn_nuovaPartita = findViewById(R.id.btn_nuovaPartita);
-        lbl_vittoria = findViewById(R.id.lbl_vittoria);
-        lbl_punteggio = findViewById(R.id.lbl_punteggio);
-        lbl_punteggio.setText(String.format("X: 0\n O: 0"));
+        assegnaMetodiPulsanti();
         init();
-
-        btn_nuovaPartita.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                nuovaPartita();
-                btn_nuovaPartita.setVisibility(View.INVISIBLE);
-            }
+        assegnaInizioGiocatore();
+        btn_nuovaPartita.setOnClickListener(view -> {
+            lbl_vittoria.setText("E' il tuo turno");
+            nuovaPartita();
         });
     }
 
-    private void init() {
-        Random turno = new Random();
-        turnoX = turno.nextBoolean();
-        if (turnoX)
-            lbl_vittoria.setText("Turno di X");
+    private void init(){
+        btn_nuovaPartita = findViewById(R.id.btn_nuovaPartita);
+        lbl_vittoria = findViewById(R.id.lbl_vittoria);
+        lbl_punteggio = findViewById(R.id.lbl_punteggio);
+        lbl_punteggio.setText("X: 0\n O: 0");
+        lbl_vittoria.setText("E' il tuo turno");
+    }
+
+    // Giocatore contro giocatore: il turno viene scelto a caso. Contro il bot: parte sempre il giocatore umano.
+    private void assegnaInizioGiocatore() {
+        if (Menu.scelta == "PlayerVSPlayer") {
+            Random turno = new Random();
+            turnoX = turno.nextBoolean();
+            if (turnoX)
+                lbl_vittoria.setText("Turno di X");
+            else
+                lbl_vittoria.setText("Turno di O");
+        }
         else
-            lbl_vittoria.setText("Turno di O");
+            turnoX = true;
     }
 
     private void nuovaPartita() {
-        vittoria = false;
         pareggio = 0;
         griglia = new String[3][3];
 
@@ -67,119 +70,80 @@ public class MainActivity extends AppCompatActivity {
                 grigliaPulsanti[i][k].nuovaPartita();
             }
         }
-        init();
+        assegnaInizioGiocatore();
     }
 
-    private void creaMatricePulsanti() {
+    private void getDifficulty() {
+        if (Menu.scelta == "PlayerVSPlayer")
+            players = new PlayerVsPlayer();
+        else
+            players = new AI();
+    }
+
+    // Gestisce i pulsanti (sono in realtà delle custom views adattate come pulsanti)
+    private void assegnaMetodiPulsanti() {
         int a = 0;
+        getDifficulty();
+
         for (int i = 0; i < 3; i++) {
-            for (int k = 0; k < 3; k++) {
+            for (int k = 0; k < 3; k++, a++) {
+
                 String buttonID = "button" + a;
-                a++;
                 int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
                 grigliaPulsanti[i][k] = findViewById(resID);
                 grigliaPulsanti[i][k].setClickable(true);
-                grigliaPulsanti[i][k].setOnClickListener(view -> onButtonClick(view));
-            }
-        }
-    }
-
-    private void controllo() {
-        for (int i = 0; i < 3; i++) {
-            rowCheck(i);
-            columnCheck(i);
-        }
-        diagonalCheck1();
-        diagonalCheck2();
-
-        if (vittoria)
-            return;
-        if (pareggio >= 9) {
-            lbl_vittoria.setText("Pareggio!");
-            btn_nuovaPartita.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void onButtonClick(View view) {
-        for (int i = 0; i < 3; i++) {
-            for (int k = 0; k < 3; k++) {
-                if (grigliaPulsanti[i][k] == view) {
-                    if (turnoX) {
-                        griglia[i][k] = "X";
-                        ((Design) view).drawX();
-                        turnoX = false;
-                        lbl_vittoria.setText("Turno di O");
-                    } else {
-                        griglia[i][k] = "O";
-                        ((Design) view).drawO();
-                        turnoX = true;
-                        lbl_vittoria.setText("Turno di X");
-                    }
+                //
+                // le righe soprastanti creano e rendono cliccabili le views
+                //
+                grigliaPulsanti[i][k].setOnClickListener(view ->
+                {
                     pareggio++;
-                    grigliaPulsanti[i][k].setClickable(false);
-                }
-            }
-        }
-        controllo();
-    }
-
-    private void rowCheck(int i) {
-        int n = 0;
-        for (int k = 0; k < 3; k++) {
-            if (griglia[i][k] == "X") n++;
-            if (griglia[i][k] == "O") n--;
-        }
-        controlloVittoria(n);
-    }
-
-    private void columnCheck(int i) {
-        int n = 0;
-        for (int k = 0; k < 3; k++) {
-            if (griglia[k][i] == "X") n++;
-            if (griglia[k][i] == "O") n--;
-        }
-        controlloVittoria(n);
-    }
-
-    private void diagonalCheck1() {
-        int n = 0;
-        for (int k = 0; k < 3; k++) {
-            if (griglia[k][k] == "X") n++;
-            if (griglia[k][k] == "O") n--;
-        }
-        controlloVittoria(n);
-    }
-
-    private void diagonalCheck2() {
-        int n = 0;
-        int i = 2;
-        for (int k = 0; k < 3; k++) {
-            if (griglia[i][k] == "X") n++;
-            if (griglia[i][k] == "O") n--;
-            i--;
-        }
-        controlloVittoria(n);
-    }
-
-    private void controlloVittoria(int n) {
-        if (!vittoria) {
-            if (n == 3) {
-                punteggioX++;
-                victory("X");
-            }
-
-            if (n == -3) {
-                punteggioO++;
-                victory("O");
+                    int v = players.onButtonClick(view, grigliaPulsanti, turnoX, griglia, pareggio);
+                    switchTurn();
+                    checkWinner(v);
+                });
             }
         }
     }
 
+    // Controlla se qualcuno ha vinto
+    private void checkWinner(int v) {
+        if (v == 1) {
+            punteggioX++;
+            victory("X");
+        } else if (v == -1) {
+            punteggioO++;
+            victory("O");
+        } else if (pareggio >= 9) {
+            lbl_vittoria.setText("Pareggio!");
+        }
+    }
+
+    // Cambia il turno.
+    private void switchTurn() {
+        if (Menu.scelta == "PlayerVSPlayer") {
+            turnoX = !turnoX;
+            lbl_vittoria.setText(String.format("Turno di %s", turnoX ? "X" : "O"));
+        } else
+            pareggio++; // Serve per fare in modo che la mossa del bot venga riconosciuta dal programma
+    }
+
+    // Filtra e assegna la vittoria
     private void victory(String giocatore) {
+        if (Menu.scelta != "PlayerVSPlayer") {
+            if (giocatore == "O") {
+                giocatore = "X";
+                punteggioX++;
+                punteggioO--;
+            } else {
+                giocatore = "O";
+                punteggioO++;
+                punteggioX--;
+            }
+        }
+
         lbl_vittoria.setText(String.format("La %s ha vinto!", giocatore));
         lbl_punteggio.setText(String.format("X: %d\n O: %d", punteggioX, punteggioO));
-        vittoria = true;
-        btn_nuovaPartita.setVisibility(View.VISIBLE);
 
         for (int i = 0; i < 3; i++) {
             for (int k = 0; k < 3; k++) {
